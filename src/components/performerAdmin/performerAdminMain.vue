@@ -2,6 +2,16 @@
     <div class="paMain">
 
         <div class="paInfo">
+            <div class="performerAdminSort">
+                <el-select placeholder="默认(姓名升序)" @change="sortHandle" v-model="sortType">
+                    <el-option label="默认(姓名升序)" value="0"></el-option>
+                    <el-option label="姓名降序" value="1"></el-option>
+                    <el-option label="年龄升序" value="2"></el-option>
+                    <el-option label="年龄降序" value="3"></el-option>
+                    <el-option label="录入时间升序" value="4"></el-option>
+                    <el-option label="录入时间降序" value="5"></el-option>
+                </el-select>
+            </div>
             <performerAdminInfo ref="performerAdminInfoRef"></performerAdminInfo>
         </div>
         <div class="paIndex">
@@ -143,6 +153,42 @@ const searchHandle = async (_query: IperformerQueryCondition) => {
     await updateData();
 }
 
+const sortType = ref('')
+const sort = {
+    column: '',
+    type: ''
+}
+
+const sortHandle = async () => {
+    switch (sortType.value.toString()) {
+        case '1':
+            sort.column = 'name'
+            sort.type = 'desc'
+            break;
+        case '2':
+            sort.column = 'birthday'
+            sort.type = 'desc'
+            break;
+        case '3':
+            sort.column = 'birthday'
+            sort.type = 'asc'
+            break;
+        case '4':
+            sort.column = 'addTime'
+            sort.type = 'asc'
+            break;
+        case '5':
+            sort.column = 'addTime'
+            sort.type = 'desc'
+            break;
+        default:
+            sort.column = 'name'
+            sort.type = 'asc'
+    }
+
+    await store.performerStore.initSort(sort.column, sort.type)
+    await updateData();
+}
 
 const updatePerformerInfo = () => {
     performerAdminInfoRef.value?.updatePerformerInfo();
@@ -166,6 +212,11 @@ provide('updatePerformerAdminMainData', updateData);
 
 </script>
 <style scoped>
+.performerAdminSort {
+    width: 150px;
+    margin-bottom: 15px;
+}
+
 .paMain {
     width: 100%;
     height: 620px;

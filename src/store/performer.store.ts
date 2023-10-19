@@ -127,7 +127,10 @@ export const performerStore = defineStore('performer', {
     },
     actions: {
         init: async function () {
-            this.performerList = await performerServerData.getDataList();
+            this.performerList = await performerServerData.getDataList('name', 'asc');
+        },
+        initSort: async function (column: string, type: string) {
+            this.performerList = await performerServerData.getDataList(column, type);
         },
         setStatus: function (id: string, value: boolean) {
             const performerObj = this.getPerformerInfoById(id);

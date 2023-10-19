@@ -44,4 +44,4 @@ function stringIndexChar(str: string) {
     return stringConvert(str)[0];
 }
 
-export { stringSearch, stringIndexChar }
+export { stringSearch, stringIndexChar, stringConvert }
