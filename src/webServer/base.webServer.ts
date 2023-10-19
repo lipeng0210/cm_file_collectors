@@ -27,7 +27,7 @@ const registerApiBase = (app: Express) => {
     });
 
     app.get('/api/performer', async (req, res) => {
-        const performer = await performerServerData.getDataList();
+        const performer = await performerServerData.getDataList('name', 'asc');
         res.json(performer);
     });
     app.get('/api/performerPhoto/:performerBasesId/:photo', async (req, res) => {

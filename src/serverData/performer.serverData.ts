@@ -1,10 +1,37 @@
 import { CoreDb } from "@/core/core"
 import { IConditions, coreDBS } from "@/core/coreDBS";
 import { Iperformer } from "@/dataInterface/performer.interface";
+import { stringConvert } from "@/assets/stringSearch";
 
 const performerServerData = {
-    getDataList: async function () {
-        return await CoreDb().table('performer').noWhere().order('addTime', 'desc').getList() as Array<Iperformer>;
+    getDataList: async function (sortColumn: string, sortType: string) {
+        const performers = await CoreDb().table('performer').noWhere().getList() as Array<Iperformer>;
+        performers.sort((a, b) => {
+            let diff = 0
+            switch (sortColumn) {
+                case 'addTime':
+                    diff = stringConvert(a.addTime).localeCompare(stringConvert(b.addTime))
+                    break;
+                case 'birthday':
+                    if (a.birthday && b.birthday) {
+                        diff = stringConvert(a.birthday).localeCompare(stringConvert(b.birthday))
+                    } else if (a.birthday || b.birthday) {
+                        return 0 - stringConvert(a.birthday).localeCompare(stringConvert(b.birthday))
+                    } else {
+                        return stringConvert(a.name).localeCompare(stringConvert(b.name))
+                    }
+                    break;
+                default:
+                    diff = stringConvert(a.name).localeCompare(stringConvert(b.name))
+            }
+            if (sortType == 'asc') {
+                diff = 0 + diff
+            } else {
+                diff = 0 - diff
+            }
+            return diff
+        })
+        return performers
     },
     getInfoById: async function (id: string) {
         return await CoreDb().table('performer').getInfo(id) as Iperformer;
