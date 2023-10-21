@@ -5,18 +5,22 @@
         </tagHeaderVue>
         <div v-if="tagDeployableState">
             <div class="tagList">
-                <tagSpan :text="$t('tag.all')" @click="selectHandle('all' as never)" :select="selectStatus('all')">
+                <tagSpan :text="$t('tag.all')" @click="selectHandle('all' as never)" :select="selectBaseStatus('all')">
                 </tagSpan>
                 <tagSpan :text="$t('tag.noPerformer', { performer: store.filesBasesSettingStore.getPerformerText })"
-                    @click="selectHandle('noPerformer' as never)" :select="selectStatus('noPerformer')"></tagSpan>
+                    @click="selectHandle('noPerformer' as never)" :select="selectBaseStatus('noPerformer')"></tagSpan>
+                <tagSpan :text="$t('tag.directorBase')" @click="selectHandle('director' as never)"
+                    :select="selectBaseStatus('director')"></tagSpan>
+                <tagSpan v-for="base, key in store.performerBasesStore.getPerformerBasesListByCurrentFilesBases" :key="key"
+                    :text="base.name" @click="selectHandle(base.id as never)" :select="selectBaseStatus(base.id)"></tagSpan>
             </div>
             <div class="performerList" v-if="store.filesBasesSettingStore.config.performerPhoto">
                 <performerCom v-for="item, key in getDataList()" :key="key" :performerInfo="item"
-                    @click="selectHandle(item.id as never)" :select="selectStatus(item.id)"></performerCom>
+                    @click="selectPerformerHandle(item.id as never)" :select="selectStatus(item.id)"></performerCom>
             </div>
             <div class="performerList" v-else>
                 <tagSpan v-for="item, key in getDataList()" :key="key" :text="item.name"
-                    @click="selectHandle(item.id as never)" :select="selectStatus(item.id)"></tagSpan>
+                    @click="selectPerformerHandle(item.id as never)" :select="selectStatus(item.id)"></tagSpan>
             </div>
         </div>
     </div>
@@ -26,6 +30,7 @@ import tagHeaderVue from "./tagHeader.vue"
 import tagSpan from "@/components/smallCom/tagSpan.vue"
 import performerCom from "@/components/smallCom/performerCom.vue"
 import { performerStore } from "@/store/performer.store";
+import { performerBasesStore } from "@/store/performerBases.store";
 import { filesBasesSettingStore } from "@/store/filesBasesSetting.store";
 import { Iperformer } from "@/dataInterface/performer.interface";
 import { EsearchLogic } from "@/dataInterface/common.enum";
@@ -44,17 +49,37 @@ const emits = defineEmits(['updateData']);
 
 const store = {
     performerStore: performerStore(),
+    performerBasesStore: performerBasesStore(),
     filesBasesSettingStore: filesBasesSettingStore(),
 }
+const tagPerformerBase = ref('all')
 const selectValArr = ref([]);
+const showValArr = ref([]);
 const searchLogic = ref(EsearchLogic.single);
 const tagDeployableState = ref(true);
+
+const isAllOrNoTag = ref(true)
+const isDirectorTag = ref(false)
+const isPerformerTag = ref(false)
+
 const getDataList = () => {
     const performerArr: Array<Iperformer> = [];
     store.filesBasesSettingStore.config.performerPreferred.forEach((perId: string) => {
         const perInfo = store.performerStore.getPerformerInfoById(perId);
         if (perInfo && performerArr.length < store.filesBasesSettingStore.config.performerShowNum) {
-            performerArr.push(perInfo)
+            if (isPerformerTag.value) {
+                if (tagPerformerBase.value == perInfo.performerBases_id && perInfo.careerPerformer) {
+                    performerArr.push(perInfo)
+                }
+            } else if (isDirectorTag.value) {
+                if (perInfo.careerDirector) {
+                    performerArr.push(perInfo)
+                }
+            } else {
+                if (perInfo.careerPerformer) {
+                    performerArr.push(perInfo)
+                }
+            }
         }
     });
     let lack = store.filesBasesSettingStore.config.performerShowNum - performerArr.length;
@@ -64,8 +89,23 @@ const getDataList = () => {
                 continue;
             }
             if (lack > 0 && !performerArr.some(obj => obj.id == store.performerStore.getPerformerListByFilesBasesId[i].id)) {
-                lack--;
-                performerArr.push(store.performerStore.getPerformerListByFilesBasesId[i]);
+                let per = store.performerStore.getPerformerListByFilesBasesId[i]
+                if (isPerformerTag.value) {
+                    if (tagPerformerBase.value == per.performerBases_id && per.careerPerformer) {
+                        lack--;
+                        performerArr.push(per)
+                    }
+                } else if (isDirectorTag.value) {
+                    if (per.careerDirector) {
+                        lack--;
+                        performerArr.push(per)
+                    }
+                } else {
+                    if (per.careerPerformer) {
+                        lack--;
+                        performerArr.push(per)
+                    }
+                }
             }
             if (lack <= 0) {
                 break;
@@ -76,7 +116,10 @@ const getDataList = () => {
 }
 
 const updateData = () => {
-    emits('updateData', 'performer', searchLogic.value, selectValArr.value)
+    isAllOrNoTag.value = tagPerformerBase.value == 'all' || tagPerformerBase.value == 'noPerformer'
+    isDirectorTag.value = tagPerformerBase.value == 'director'
+    isPerformerTag.value = !(isAllOrNoTag.value || isDirectorTag.value)
+    emits('updateData', isDirectorTag.value ? 'director' : 'performer', searchLogic.value, selectValArr.value, showValArr.value)
 }
 
 
@@ -92,44 +135,66 @@ const updateDeployableState = (deployableState: boolean) => {
 }
 
 const selectHandle = (val: never) => {
+    selectValArr.value = []
+    showValArr.value = []
+    tagPerformerBase.value = val
     if (val == 'all') {
-        selectValArr.value = [];
+        selectValArr.value = []
     } else if (val == 'noPerformer') {
-        selectValArr.value = ['noPerformer' as never];
+        selectValArr.value = [];
+    } else if (val == 'director') {
+        store.performerStore.getPerformerListyPerformerBasesId(val).forEach((per) => {
+            if (per.careerDirector) {
+                selectValArr.value.push(per.id as never)
+            }
+        })
+    } else {
+        store.performerStore.getPerformerListyPerformerBasesId(val).forEach((per) => {
+            if (per.careerPerformer) {
+                selectValArr.value.push(per.id as never)
+            }
+        })
+    }
+
+    const searchLogicTmp = searchLogic.value
+    searchLogic.value = EsearchLogic.or
+    updateData();
+    searchLogic.value = searchLogicTmp
+    selectValArr.value = []
+}
+
+const selectPerformerHandle = (val: never) => {
+    if(isAllOrNoTag.value){
+        tagPerformerBase.value = 'all'
+    }
+    const index = selectValArr.value.findIndex(item => item == val)
+    if (index > -1) {
+        selectValArr.value.splice(index, 1);
     } else {
         if (searchLogic.value == EsearchLogic.single) {
             selectValArr.value = [val];
         } else {
-            const noPerformerIndex = selectValArr.value.findIndex(item => item == 'noPerformer');
-            if (noPerformerIndex > -1) {
-                selectValArr.value.splice(noPerformerIndex, 1);
-            }
-            const index = selectValArr.value.findIndex(item => item == val);
-            if (index > -1) {
-                selectValArr.value.splice(index, 1);
-            } else {
-                selectValArr.value.push(val);
-            }
+            selectValArr.value.push(val);
         }
     }
+    showValArr.value = selectValArr.value
     updateData();
 }
 
 const selectStatus = (val: string) => {
-    if (val == 'all' && selectValArr.value.length == 0) {
-        return true;
-    } else if (val == 'noPerformer' && selectValArr.value[0] == 'noPerformer') {
-        return true;
-    } else if (selectValArr.value.indexOf(val as never) > -1) {
-        return true;
-    }
-    return false;
+    return showValArr.value.indexOf(val as never) > -1
+}
+
+const selectBaseStatus = (val: string) => {
+    return val === tagPerformerBase.value
 }
 
 </script>
 <style scoped>
 .tagList {
     display: flex;
+    overflow-x: auto;
+    margin-bottom: 5px;
 }
 
 .performerList {

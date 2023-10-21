@@ -93,6 +93,7 @@ export default {
         noStar: '未评分',
         star: '{star}星',
         noPerformer: '无{performer}',
+        directorBase: '导演集',
         admin: '标签管理',
         leftColumnDisplay: '左边栏显示',
         addClass: '添加标签分类',

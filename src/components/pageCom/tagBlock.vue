@@ -63,15 +63,15 @@ const updateDeployableState = (deployableState: boolean) => {
 }
 
 const selectHandle = (val: never) => {
-    if (val == 'all') {
-        selectValArr.value = [];
+    const index = selectValArr.value.findIndex(item => item == val)
+    if (index > -1) {
+        selectValArr.value.splice(index, 1);
     } else {
-        if (searchLogic.value == EsearchLogic.single) {
-            selectValArr.value = [val];
+        if (val == 'all') {
+            selectValArr.value = [];
         } else {
-            const index = selectValArr.value.findIndex(item => item == val);
-            if (index > -1) {
-                selectValArr.value.splice(index, 1);
+            if (searchLogic.value == EsearchLogic.single) {
+                selectValArr.value = [val];
             } else {
                 selectValArr.value.push(val);
             }

@@ -17,8 +17,10 @@ export interface IsearchCondition {
     year: IsearchConditionItem,
     starRating: IsearchConditionItem,
     performer: IsearchConditionItem,
+    director: IsearchConditionItem,
     cup: IsearchConditionItem,
     diyTag: { [key: string]: IsearchConditionItem },
+    headerSearchPersonShow: string[],
 }
 
 export interface IresUpdateDetailsView {
