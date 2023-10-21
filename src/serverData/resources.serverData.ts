@@ -282,6 +282,7 @@ const resourcesSearchCondition = {
         CDB = this.setCDBGroupIssuingDate(CDB, 'issuingDate', searchCondition.year.logic, searchCondition.year.value);
         CDB = this.setCDBGroup(CDB, 'stars', searchCondition.starRating.logic, searchCondition.starRating.value);
         CDB = this.setCDBGroupPerformer(CDB, searchCondition.performer.logic, searchCondition.performer.value);
+        CDB = this.setCDBGroupDirctor(CDB, searchCondition.director.logic, searchCondition.director.value);
         CDB = this.setCDBGroupCup(CDB, searchCondition.cup.logic, searchCondition.cup.value);
         for (const key in searchCondition.diyTag) {
             CDB = this.setCDBGroupTag(CDB, key, searchCondition.diyTag[key].logic, searchCondition.diyTag[key].value);
@@ -354,6 +355,33 @@ const resourcesSearchCondition = {
             dataArr.forEach((item: string, index: number) => {
                 const boxName = "resPerformersId_" + index;
                 sqlArr.push(' (select count(*) from resourcesPerformers where  resources_id = resources.id and performer_id = @' + boxName + ') > 0');
+                perObj[boxName] = item;
+            });
+            _CDB.whereSql(sqlArr.join(' and '), perObj);
+        }
+        return _CDB;
+    },
+    setCDBGroupDirctor: function (_CDB: coreDBS, logic: EsearchLogic, dataArr: string[]) {
+        if (dataArr.length == 0) {
+            return _CDB;
+        }
+        if (logic == EsearchLogic.single) {
+            _CDB.whereSql("id in (select resources_id from resourcesDirectors where performer_id = @resPerformersId)", { resPerformersId: dataArr[0] });
+        } else if (logic == EsearchLogic.or) {
+            const sqlArr: Array<string> = [];
+            const perObj: { [key: string]: string } = {}
+            dataArr.forEach((item: string, index: number) => {
+                const boxName = "resPerformersId_" + index;
+                sqlArr.push("performer_id = @" + boxName)
+                perObj[boxName] = item;
+            })
+            _CDB.whereSql("id in (select resources_id from resourcesDirectors where " + sqlArr.join(' or ') + ")", perObj)
+        } else if (logic == EsearchLogic.and) {
+            const sqlArr: Array<string> = [];
+            const perObj: { [key: string]: string } = {}
+            dataArr.forEach((item: string, index: number) => {
+                const boxName = "resPerformersId_" + index;
+                sqlArr.push(' (select count(*) from resourcesDirectors where  resources_id = resources.id and performer_id = @' + boxName + ') > 0');
                 perObj[boxName] = item;
             });
             _CDB.whereSql(sqlArr.join(' and '), perObj);

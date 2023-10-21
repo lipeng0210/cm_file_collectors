@@ -20,9 +20,9 @@
             @close="closeTag(store.searchStore.searchCondition.starRating.value, key)" closable>
             {{ getStarRatingText(item) }}
         </el-tag>
-        <el-tag v-for="item, key in store.searchStore.searchCondition.performer.value" :key="key"
+        <el-tag v-for="item, key in store.searchStore.searchCondition.headerSearchPersonShow" :key="key"
             :type="tagType(store.searchStore.searchCondition.performer.logic)" size="large"
-            @close="closeTag(store.searchStore.searchCondition.performer.value, key)" closable>
+            @close="closeTag(store.searchStore.searchCondition.headerSearchPersonShow, key)" closable>
             {{ getPerformerText(item) }}
         </el-tag>
         <el-tag v-for="item, key in store.searchStore.searchCondition.cup.value" :key="key"

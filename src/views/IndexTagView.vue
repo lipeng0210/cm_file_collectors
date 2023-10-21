@@ -101,8 +101,11 @@ const getTagDataList = (tagClass_id: string) => {
     })
 }
 
-const updateDataCondition = (mode: string, logic: EsearchLogic, selectVal: string[]) => {
+const updateDataCondition = (mode: string, logic: EsearchLogic, selectVal: string[], showVal: string[]) => {
     store.searchStore.setSearchData(mode, logic, selectVal);
+    if (mode == 'director' || mode == 'performer') {
+        store.searchStore.setPersonShow(showVal)
+    }
     if (indexUpdateResourcesDataInject) indexUpdateResourcesDataInject([EresUpdate.updateData]);
 }
 

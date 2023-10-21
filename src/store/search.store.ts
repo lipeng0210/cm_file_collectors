@@ -26,6 +26,10 @@ export const searchStore = defineStore('search', {
                 logic: EsearchLogic.single,
                 value: [],
             },
+            director: {
+                logic: EsearchLogic.single,
+                value: [],
+            },
             cup: {
                 logic: EsearchLogic.single,
                 value: [],
@@ -33,6 +37,7 @@ export const searchStore = defineStore('search', {
             diyTag: {
 
             },
+            headerSearchPersonShow: [],
         } as IsearchCondition,
     }),
     getters: {},
@@ -44,7 +49,9 @@ export const searchStore = defineStore('search', {
             this.searchCondition.year.value.splice(0);
             this.searchCondition.starRating.value.splice(0);
             this.searchCondition.performer.value.splice(0);
+            this.searchCondition.director.value.splice(0);
             this.searchCondition.cup.value.splice(0);
+            this.searchCondition.headerSearchPersonShow.splice(0);
             for (const key in this.searchCondition.diyTag) {
                 this.searchCondition.diyTag[key].value.splice(0);
             }
@@ -52,6 +59,11 @@ export const searchStore = defineStore('search', {
         setSearchText: function (str: string) {
             this.searchCondition.text = str;
         },
+
+        setPersonShow: function (dataVal: string[]) {
+            this.searchCondition.headerSearchPersonShow = dataVal
+        },
+
         setSearchData: function (mode: string, logic: EsearchLogic, dataVal: string[]) {
             switch (mode) {
                 case 'country':
@@ -77,6 +89,10 @@ export const searchStore = defineStore('search', {
                 case 'performer':
                     this.searchCondition.performer.logic = logic;
                     this.searchCondition.performer.value = dataVal;
+                    break;
+                case 'director':
+                    this.searchCondition.director.logic = logic;
+                    this.searchCondition.director.value = dataVal;
                     break;
                 default:
                     if (mode != '') {
