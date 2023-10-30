@@ -106,6 +106,11 @@ const updateDataCondition = (mode: string, logic: EsearchLogic, selectVal: strin
     if (mode == 'director' || mode == 'performer') {
         store.searchStore.setPersonShow(showVal)
     }
+    if(mode == 'director'){
+        store.searchStore.setSearchData('performer',EsearchLogic.single,[])
+    }else if(mode == 'performer'){
+        store.searchStore.setSearchData('director',EsearchLogic.single,[])
+    }
     if (indexUpdateResourcesDataInject) indexUpdateResourcesDataInject([EresUpdate.updateData]);
 }
 

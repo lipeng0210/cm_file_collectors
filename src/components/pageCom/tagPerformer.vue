@@ -143,7 +143,8 @@ const selectHandle = (val: never) => {
     } else if (val == 'noPerformer') {
         selectValArr.value = [];
     } else if (val == 'director') {
-        store.performerStore.getPerformerListyPerformerBasesId(val).forEach((per) => {
+        //     store.performerStore.getPerformerListyPerformerBasesId(val).forEach((per) => {
+        store.performerStore.getPerformerListByFilesBasesId.forEach((per) => {
             if (per.careerDirector) {
                 selectValArr.value.push(per.id as never)
             }
@@ -164,7 +165,7 @@ const selectHandle = (val: never) => {
 }
 
 const selectPerformerHandle = (val: never) => {
-    if(isAllOrNoTag.value){
+    if (isAllOrNoTag.value) {
         tagPerformerBase.value = 'all'
     }
     const index = selectValArr.value.findIndex(item => item == val)

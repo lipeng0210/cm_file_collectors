@@ -8,7 +8,8 @@
     <div v-else :class="Class_C">
         <el-popover placement="left" width="380" trigger="click">
             <div v-if="props.performerInfo">
-                <performerComSubB :performerInfo="props.performerInfo" :shootingDate="shootingDate"></performerComSubB>
+                <performerComSubB :performerInfo="props.performerInfo" :shootingDate="shootingDate"
+                    :performer="props.performer"></performerComSubB>
             </div>
             <template #reference>
                 <performerComSubA :performerInfo="props.performerInfo" @showPerRes="showPerRes"></performerComSubA>
@@ -38,6 +39,10 @@ const props = defineProps({
         type: Boolean,
         default: false
     },
+    performer: {
+        type: Boolean,
+        default: true
+    }
 });
 // eslint-disable-next-line no-undef
 const emits = defineEmits(['showPerRes']);

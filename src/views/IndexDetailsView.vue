@@ -48,7 +48,7 @@
                 <div class="detailsItem" v-if="resDataInfo.directors.length > 0">
                     <el-alert class="tagAlert" :title="store.filesBasesSettingStore.getDirectorText" :closable="false" />
                     <div class="performerList">
-                        <performerCom mode="popover"
+                        <performerCom mode="popover" :performer="false"
                             v-for="item, key in resDataInfo.directors.filter(item => store.performerStore.performerExist(item.performer_id))"
                             :key="key" :performerInfo="store.performerStore.getPerformerInfoById(item.performer_id)">
                         </performerCom>
