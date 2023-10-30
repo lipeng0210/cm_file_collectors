@@ -4,8 +4,7 @@
             {{ performerInfo.cup }}-{{ store.filesBasesSettingStore.config.plugInUnit_Cup_Text }}
         </div>
         <div class="performerPhoto">
-            <photoImageCom class="photo"
-                :src="performerFaceImageSrc(performerInfo.performerBases_id, performerInfo.photo)">
+            <photoImageCom class="photo" :src="performerFaceImageSrc(performerInfo.performerBases_id, performerInfo.photo)">
             </photoImageCom>
         </div>
         <div class="performerInfo">
@@ -66,6 +65,10 @@ const props = defineProps({
         type: String,
         default: undefined,
     },
+    performer: {
+        type: Boolean,
+        default: true
+    }
 });
 const store = {
     searchStore: searchStore(),
@@ -73,7 +76,7 @@ const store = {
 }
 
 const showPerRes = () => {
-    store.searchStore.setSearchData('performer', EsearchLogic.single, [props.performerInfo.id]);
+    store.searchStore.setSearchData(props.performer ? 'performer' : 'director', EsearchLogic.single, [props.performerInfo.id]);
     if (indexUpdateResourcesDataInject) indexUpdateResourcesDataInject([EresUpdate.updateData]);
 }
 </script>
