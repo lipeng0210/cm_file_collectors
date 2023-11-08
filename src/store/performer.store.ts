@@ -2,7 +2,10 @@ import { defineStore } from "pinia";
 import dataset from "@/assets/dataset";
 import { stringSearch, stringIndexChar } from "@/assets/stringSearch";
 import { Iperformer, IperformerPaging, IperformerQueryCondition } from "@/dataInterface/performer.interface";
+import { IresFileBasePerformer } from "@/dataInterface/resources.interface";
 import { performerServerData } from "@/serverData/performer.serverData"
+import { resourcesPerformersServerData } from '@/serverData/resourcesPerformers.serverData'
+import { resourcesDirectorsServerData } from '@/serverData/resourcesDirectors.serverData'
 import { filesBasesStore } from "@/store/filesBases.store";
 import { filesRelatedPerformerBasesStore } from "@/store/filesRelatedPerformerBases.store";
 
@@ -10,9 +13,27 @@ import { filesRelatedPerformerBasesStore } from "@/store/filesRelatedPerformerBa
 export const performerStore = defineStore('performer', {
     state: () => ({
         currentAdminPerformerBases_id: undefined as string | undefined,
-        performerList: [] as Array<Iperformer>
+        performerList: [] as Array<Iperformer>,
+        resFileBasePerformerList: [] as Array<IresFileBasePerformer>,
+        resFileBaseDirectorList: [] as Array<IresFileBasePerformer>
     }),
     getters: {
+        getResourcesPerformersByFilebaseAndPerformer: function (state) {
+            return (performer_id: string, isPerformer: boolean): Array<IresFileBasePerformer> => {
+                const store = {
+                    filesBasesStore: filesBasesStore()
+                }
+                const dataArr = isPerformer ? state.resFileBasePerformerList : state.resFileBaseDirectorList
+                const dataList: Array<IresFileBasePerformer> = []
+                for (let i = 0; i < dataArr.length; i++) {
+                    const item = dataArr[i]
+                    if (item.filesBases_id == store.filesBasesStore.currentFilesBases.id && item.performer_id == performer_id) {
+                        dataList.push(item)
+                    }
+                }
+                return dataList
+            }
+        },
         getPerformerListPaging: function (state) {
             return (performerBases_id: string, page = 1, limit = 30, queryCondition: IperformerQueryCondition | undefined = undefined): IperformerPaging => {
                 const dataList: Array<Iperformer> = [];
@@ -128,9 +149,14 @@ export const performerStore = defineStore('performer', {
     actions: {
         init: async function () {
             this.performerList = await performerServerData.getDataList('name', 'asc');
+            this.updatePerWork()
         },
         initSort: async function (column: string, type: string) {
             this.performerList = await performerServerData.getDataList(column, type);
+        },
+        updatePerWork: async function () {
+            this.resFileBasePerformerList = await resourcesPerformersServerData.getResourcesPerformersByFilebaseAndPerformer();
+            this.resFileBaseDirectorList = await resourcesDirectorsServerData.getResourcesPerformersByFilebaseAndPerformer();
         },
         setStatus: function (id: string, value: boolean) {
             const performerObj = this.getPerformerInfoById(id);

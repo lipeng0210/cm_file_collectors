@@ -1,7 +1,14 @@
 import { CoreDb } from "@/core/core";
 import { IConditions, coreDBS } from "@/core/coreDBS";
-import { IresPerformers } from "@/dataInterface/resources.interface";
+import { IresPerformers, IresFileBasePerformer } from "@/dataInterface/resources.interface";
 const resourcesPerformersServerData = {
+    getResourcesPerformersByFilebaseAndPerformer: async function () {
+        return await CoreDb().table('resourcesPerformers').fields(['t.resources_id', 'r.filesBases_id', 't.performer_id'])
+            .leftJoin('resources as r', 't.resources_id = r.id')
+            .leftJoin('filesBases as fb', 'r.filesBases_id = fb.id')
+            .leftJoin('performer as p', 't.performer_id = p.id ').noWhere()
+            .getList() as Array<IresFileBasePerformer>;
+    },
     getDataListByResources_id: async function (resources_id: string) {
         return await CoreDb().table('resourcesPerformers').where('resources_id', '=', resources_id).order('sort', 'asc').getList() as Array<IresPerformers>;
     },

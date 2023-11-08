@@ -50,7 +50,8 @@
                     <div class="performerList">
                         <performerCom mode="popover" :performer="false"
                             v-for="item, key in resDataInfo.directors.filter(item => store.performerStore.performerExist(item.performer_id))"
-                            :key="key" :performerInfo="store.performerStore.getPerformerInfoById(item.performer_id)">
+                            :key="key" :performerInfo="store.performerStore.getPerformerInfoById(item.performer_id)"
+                            :workNum="setWorkNum(false, item.performer_id)">
                         </performerCom>
                     </div>
                 </div>
@@ -61,7 +62,8 @@
                         <performerCom mode="popover"
                             v-for="item, key in resDataInfo.performers.filter(item => store.performerStore.performerExist(item.performer_id))"
                             :key="key" :performerInfo="store.performerStore.getPerformerInfoById(item.performer_id)"
-                            :shootingDate="resDataInfo.issuingDate == '' ? undefined : resDataInfo.issuingDate">
+                            :shootingDate="resDataInfo.issuingDate == '' ? undefined : resDataInfo.issuingDate"
+                            :workNum="setWorkNum(true, item.performer_id)">
                         </performerCom>
                     </div>
                 </div>
@@ -136,13 +138,17 @@ const indexPlayViewRef = ref<InstanceType<typeof indexPlayView>>();
 const detailsTop = ref(null);
 const detailsBodyHeight = ref('calc(100% - 460px)');
 const resDataInfo = ref<Iresources>();
+
+const setWorkNum = (isPerformer: boolean, performer_id: string) => {
+    return store.performerStore.getResourcesPerformersByFilebaseAndPerformer(performer_id, isPerformer).length
+}
+
 const loadImage = () => {
     setDetailsBodyHeight(true);
 }
 const errorImage = () => {
     setDetailsBodyHeight(false);
 }
-
 
 const getCoverSrc = () => {
     if (resDataInfo.value) {
@@ -156,8 +162,6 @@ const getCoverSrc = () => {
     }
 
 }
-
-
 
 const setDetailsBodyHeight = (status: boolean) => {
     if (status && detailsTop.value != null) {
@@ -183,7 +187,6 @@ const play = async (info: Iresources, dramaSeries: IresDramaSeries | undefined =
     await indexPlayViewRef.value?.play(info, dramaSeries);
 }
 
-
 const openFolder = async () => {
     if (resDataInfo.value?.dramaSeries[0] && resDataInfo.value?.dramaSeries[0].src != '') {
         await elShell.openPath(virtualRouteConverter(resDataInfo.value.dramaSeries[0].src));
@@ -196,8 +199,6 @@ const editResources = () => {
     }
 }
 
-
-
 const show = async (type: EresDetatilsType, dataInfo: IresourcesBase) => {
     const info = await getResDataInfo(dataInfo.id);
     if (type == EresDetatilsType.show) {
@@ -208,6 +209,7 @@ const show = async (type: EresDetatilsType, dataInfo: IresourcesBase) => {
 }
 const updateData = async (resUpdateDetailsView: IresUpdateDetailsView | undefined = undefined) => {
     const resId = resUpdateDetailsView ? resUpdateDetailsView.id : resDataInfo.value?.id;
+    store.performerStore.updatePerWork()
     if (resId) {
         resDataInfo.value = await getResDataInfo(resId);
     } else {
