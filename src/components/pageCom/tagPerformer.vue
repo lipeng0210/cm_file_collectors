@@ -16,7 +16,9 @@
             </div>
             <div class="performerList" v-if="store.filesBasesSettingStore.config.performerPhoto">
                 <performerCom v-for="item, key in getDataList()" :key="key" :performerInfo="item"
-                    @click="selectPerformerHandle(item.id as never)" :select="selectStatus(item.id)"></performerCom>
+                    @click="selectPerformerHandle(item.id as never)" :select="selectStatus(item.id)"
+                    :performer="(isAllOrNoTag || isPerformerTag) ? true : false"
+                    :workNum="setWorkNum((isAllOrNoTag || isPerformerTag) ? true : false, item.id)"></performerCom>
             </div>
             <div class="performerList" v-else>
                 <tagSpan v-for="item, key in getDataList()" :key="key" :text="item.name"
@@ -115,6 +117,10 @@ const getDataList = () => {
     return performerArr;
 }
 
+const setWorkNum = (isPerformer: boolean, performer_id: string) => {
+    return store.performerStore.getResourcesPerformersByFilebaseAndPerformer(performer_id, isPerformer).length
+}
+
 const updateData = () => {
     isAllOrNoTag.value = tagPerformerBase.value == 'all' || tagPerformerBase.value == 'noPerformer'
     isDirectorTag.value = tagPerformerBase.value == 'director'
@@ -143,7 +149,6 @@ const selectHandle = (val: never) => {
     } else if (val == 'noPerformer') {
         selectValArr.value = [];
     } else if (val == 'director') {
-        //     store.performerStore.getPerformerListyPerformerBasesId(val).forEach((per) => {
         store.performerStore.getPerformerListByFilesBasesId.forEach((per) => {
             if (per.careerDirector) {
                 selectValArr.value.push(per.id as never)

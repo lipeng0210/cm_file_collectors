@@ -1,5 +1,10 @@
 import { EresDramaSeriesType } from "./common.enum";
 
+interface IresFileBasePerformer {
+    resource_id: string,
+    filesBases_id: string,
+    performer_id: string
+}
 interface IresourcesBase {
     id: string;
     filesBases_id: string;
@@ -73,4 +78,4 @@ interface IresWhereObj {
     sortMode: string;
 }
 
-export { IresourcesBase, Iresources, IresDramaSeries, IresSimpleAnddramaSeries, IresDramaSeriesParhReplaceerInfo, IresTags, IresTagsInfo, IresDirectors, IresPerformers, IresWhereObj }
+export { IresFileBasePerformer, IresourcesBase, Iresources, IresDramaSeries, IresSimpleAnddramaSeries, IresDramaSeriesParhReplaceerInfo, IresTags, IresTagsInfo, IresDirectors, IresPerformers, IresWhereObj }
