@@ -19,7 +19,7 @@ export const performerStore = defineStore('performer', {
     }),
     getters: {
         getResourcesPerformersByFilebaseAndPerformer: function (state) {
-            return (performer_id: string, isPerformer: boolean): Array<IresFileBasePerformer> => {
+            return (performer_id: string | undefined, isPerformer: boolean): Array<IresFileBasePerformer> => {
                 const store = {
                     filesBasesStore: filesBasesStore()
                 }

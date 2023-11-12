@@ -1,7 +1,8 @@
 <template>
     <div>
+        <!-- <div v-if="props.mode != 'brief'" :class="WorksCls">{{ setWorkNum(props.performer, props.performerInfo?.id) }}</div> -->
         <photoImageCom class="photo" :src="src"></photoImageCom>
-        <div class="name">{{ name }}</div>
+        <div class="name">{{ name }}<div v-if="props.mode != 'brief'" :class="WorksCls">{{ setWorkNum(props.performer, props.performerInfo?.id) }}</div></div>
         <div v-if="props.mode == 'brief'">
             <div class="perInfoOther">
                 <label v-if="props.performerInfo && props.performerInfo.nationality != ''">{{ $t('country.' +
@@ -21,6 +22,7 @@
 import photoImageCom from '@/components/smallCom/photoImageCom.vue'
 import { calculateAge } from '@/assets/math'
 import { Iperformer } from '@/dataInterface/performer.interface';
+import { performerStore } from "@/store/performer.store";
 import { computed } from 'vue';
 import { performerFaceImageSrc } from "@/assets/fileDbFolder";
 // eslint-disable-next-line no-undef
@@ -32,6 +34,10 @@ const props = defineProps({
         type: String,
         default: 'simple',//['simple','brief']
     },
+    performer: {
+        type: Boolean,
+        default: true
+    }
 });
 
 // eslint-disable-next-line no-undef
@@ -50,11 +56,43 @@ const src = computed(() => {
     return '';
 })
 
+const WorksCls = computed(() => {
+    return ['worksCls', props.performer ? 'perWorksCls' : 'dirWorksCls']
+})
+
 const showPerRes = () => {
     emits('showPerRes');
 }
+
+const store = {
+    performerStore: performerStore()
+}
+
+const setWorkNum = (isPerformer: boolean, performer_id: string | undefined) => {
+    return store.performerStore.getResourcesPerformersByFilebaseAndPerformer(performer_id, isPerformer).length
+}
 </script>
 <style scoped>
+.worksCls {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    font-size: 10px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.perWorksCls {
+    background-color: red;
+}
+
+.dirWorksCls {
+    background-color: rgb(7, 121, 170);
+}
+
 .performerCom .photo {
     cursor: pointer;
     margin-left: 2px;
@@ -75,7 +113,6 @@ const showPerRes = () => {
 
 .performerCom .name {
     color: #606266;
-    padding: 2px 5px;
     text-align: center;
     transform: scale(.75);
     overflow: hidden;
@@ -84,6 +121,9 @@ const showPerRes = () => {
     /*文本不换行*/
     text-overflow: ellipsis;
     /*ellipsis:文本溢出显示省略号（...）*/
+    display: flex;
+    align-items: center;
+    flex-direction: column;
 }
 
 .performerCom .perInfoOther {
