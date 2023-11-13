@@ -243,6 +243,16 @@ export default {
             title: '基础设置',
             countryList: '国家列表',
             definition: '清晰度',
+            password: {
+                title: '文件数据库密码设置',
+                label: '开启密码',
+                inputPassword: '输入密码',
+                cancel: '取消',
+                confirm: '确认',
+                message: {
+                    inputError: '密码错误，请重新输入'
+                }
+            }
         },
         leftSidebar: {
             title: '左侧边栏',

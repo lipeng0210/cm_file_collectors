@@ -1,7 +1,7 @@
 <template>
     <div ref="indexBodyRef" class="indexBody">
         <div ref="indexBodyTagRef" class="indexBodyTag" :style="{ ...leftStype_C, position: leftPosition_C }">
-            <IndexTagView></IndexTagView>
+            <IndexTagView v-show="showDatasFlag"></IndexTagView>
         </div>
         <div ref="arrowRef" class="arrow" v-if="store.filesBasesSettingStore.config.leftColumnMode == 'float'"
             @click="openIndexBodyTag">
@@ -13,20 +13,20 @@
 
         <div class="indexBodyMain" :style="mainStype_C">
             <div class="content">
-                <div :class="[gerResDataListClass()]">
+                <div :class="[gerResDataListClass()]" v-show="showDatasFlag">
                     <IndexDataListTableModeView ref="IndexDataListTableRef"
                         v-if="store.filesBasesSettingStore.config.resourcesShowMode == 'table'" :dataList="resDataList"
                         @clickHandle="clickDataHandle"></IndexDataListTableModeView>
                     <IndexDataListView ref="IndexDataListRef" v-else :dataList="resDataList" @clickHandle="clickDataHandle">
                     </IndexDataListView>
                 </div>
-                <div class="details" v-if="store.filesBasesSettingStore.config.resourceDetailsShowMode == 'right'">
+                <div class="details" v-if="store.filesBasesSettingStore.config.resourceDetailsShowMode == 'right'"  v-show="showDatasFlag">
                     <IndexDetailsView ref="IndexDetailsViewRef"></IndexDetailsView>
                 </div>
                 <IndexDetailsPopupView ref="IndexDetailsPopupViewRef" v-else></IndexDetailsPopupView>
             </div>
             <div class="footer">
-                <IndexFooterView :dataCount="resDataCount" :dataLimit="resWhereObj.limit" @currentChange="currentChange">
+                <IndexFooterView :dataCount="resDataCount" :dataLimit="resWhereObj.limit" @currentChange="currentChange" @setShowDatasFlag="setShowDatasFlag">
                 </IndexFooterView>
             </div>
         </div>
@@ -72,6 +72,8 @@ const resWhereObj = reactive<IresWhereObj>({
     sortMode: store.filesBasesSettingStore.config.sortMode,
 });
 
+const showDatasFlag = ref(!store.filesBasesSettingStore.config.openFileBasePassword)
+
 watch(
     [
         () => store.filesBasesSettingStore.config.pageLimit,
@@ -84,6 +86,9 @@ watch(
     }
 );
 
+const setShowDatasFlag = (flag: boolean) => {
+    showDatasFlag.value = flag
+}
 
 const handleIndexBodyResize = () => {
     indexBodyElementData.height = indexBodyRef.value?.offsetHeight;

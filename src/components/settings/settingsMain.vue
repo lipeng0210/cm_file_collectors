@@ -22,6 +22,15 @@
                                 :value="item" />
                         </el-select>
                     </div>
+                    
+                    <div class="settingMainItem">
+                        <h5>{{ $t('settings.basicSettings.password.title') }}</h5>
+                        <div style="display: flex;flex-direction: row; align-items: center;justify-content: flex-start;">
+                            <el-checkbox v-model="openFileBasePasswordData" :label="$t('settings.basicSettings.password.label')" border />
+                            <el-input style="width: 200px;" v-model="fileBasePasswordData"
+                                :disabled="!openFileBasePasswordData" show-password />
+                        </div>
+                    </div>
                 </div>
                 <div class="settingMainBlock">
                     <div class="blockTitle">
@@ -496,6 +505,14 @@ const performerPhotoData = computed({
 const shieldNoPerformerPhotoData = computed({
     get: () => store.filesBasesSettingStore.config.shieldNoPerformerPhoto,
     set: (value) => store.filesBasesSettingStore.config.shieldNoPerformerPhoto = value,
+})
+const openFileBasePasswordData = computed({
+    get: () => store.filesBasesSettingStore.config.openFileBasePassword,
+    set: (value) => { store.filesBasesSettingStore.config.openFileBasePassword = value }
+})
+const fileBasePasswordData = computed({
+    get: () => store.filesBasesSettingStore.config.fileBasePassword,
+    set: (value) => store.filesBasesSettingStore.config.fileBasePassword = value,
 })
 const performerShowNumData = computed({
     get: () => store.filesBasesSettingStore.config.performerShowNum,

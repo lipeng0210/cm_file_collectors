@@ -26,6 +26,8 @@ interface IfilesBasesConfig {
     tagMode: string;
     performerPhoto: boolean;
     shieldNoPerformerPhoto: boolean;
+    openFileBasePassword: boolean;
+    fileBasePassword: string,
     performerShowNum: number;
     performerPreferred: Array<string>;
     pageLimit: number;

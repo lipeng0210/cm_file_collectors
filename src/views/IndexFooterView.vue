@@ -30,6 +30,17 @@
     </div>
     <systemDialog ref="systemDialogRef"></systemDialog>
     <filesDatabasesAdminDialog ref="filesDatabasesAdminDialogRef"></filesDatabasesAdminDialog>
+    <el-dialog v-model="alertDialog" width="30%" :before-close="backFileBase" :close-on-click-modal="false">
+        <el-form-item :label="$t('settings.basicSettings.password.inputPassword')">
+            <el-input style="width:200px" v-model="passwordInput" show-password />
+        </el-form-item>
+        <template #footer>
+            <span class="dialog-footer">
+                <el-button @click="backFileBase">{{ $t('settings.basicSettings.password.cancel') }}</el-button>
+                <el-button type="primary" @click="confirmBtn">{{ $t('settings.basicSettings.password.confirm') }}</el-button>
+            </span>
+        </template>
+    </el-dialog>
 </template>
 <script setup lang="ts">
 import { softWareConfigData } from '@/setup/softwareConfig';
@@ -38,6 +49,7 @@ import filesDatabasesAdminDialog from '@/components/filesDatabasesAdmin/filesDat
 import systemDialog from '@/components/system/systemDialog.vue';
 import { EresUpdate } from '@/dataInterface/common.enum';
 import { filesBasesStore } from "@/store/filesBases.store";
+import { filesBasesSettingStore } from "@/store/filesBasesSetting.store";
 
 import { createServer, closeServer } from '@/webServer/index.webServer';
 import { ref, inject, watch, onMounted } from 'vue'
@@ -58,12 +70,13 @@ const props = defineProps({
     dataLimit: {
         type: Number,
         default: 32,
-    }
+    },
 });
 // eslint-disable-next-line no-undef
-const emits = defineEmits(['currentChange']);
+const emits = defineEmits(['currentChange', 'setShowDatasFlag']);
 const store = {
     filesBasesStore: filesBasesStore(),
+    filesBasesSettingStore: filesBasesSettingStore()
 }
 const currentPage = ref(1);
 const pageSize = ref(props.dataLimit);
@@ -72,18 +85,64 @@ const filesDatabasesAdminDialogRef = ref<InstanceType<typeof filesDatabasesAdmin
 const systemDialogRef = ref<InstanceType<typeof systemDialog>>();
 const currentFilesBases = ref(store.filesBasesStore.currentFilesBases.id);
 
+const preCurrentFilesBases = ref('');
+const passwordInput = ref('')
+const alertDialog = ref(store.filesBasesSettingStore.config.openFileBasePassword)
+
 watch(() => props.dataLimit, (newValue) => pageSize.value = newValue);
-watch(() => store.filesBasesStore.currentFilesBases.id, (newValue) => currentFilesBases.value = newValue);
+watch(() => store.filesBasesStore.currentFilesBases.id, (newValue, oldValue) => {
+    preCurrentFilesBases.value = oldValue
+    currentFilesBases.value = newValue
+});
 
 const currentChange = () => {
     emits('currentChange', currentPage.value);
 }
+const setShowDatasFlag = (flag: boolean) => {
+    emits('setShowDatasFlag', flag);
+}
 
-const changeFilesBases = async (filesBases_id: string) => {
-    if (AppInitInject) AppInitInject(filesBases_id, async () => {
+const changeFilesBases = async () => {
+    setShowDatasFlag(false)
+    await appInit(currentFilesBases.value)
+    alertDialog.value = store.filesBasesSettingStore.config.openFileBasePassword
+    setShowDatasFlag(!alertDialog.value)
+}
+
+const appInit = async (filesBases_id: string) => {
+    if (AppInitInject) await AppInitInject(filesBases_id, async () => {
         if (indexUpdateResourcesDataInject) indexUpdateResourcesDataInject([EresUpdate.updateData, EresUpdate.updataDetailsViewByUpdateDataFirstRecord]);
     });
+}
 
+const backFileBase = async () => {
+    alertDialog.value = false
+    await appInit(preCurrentFilesBases.value)
+    passwordInput.value = ''
+
+    if (store.filesBasesSettingStore.config.openFileBasePassword) {
+        alertDialog.value = true
+        setShowDatasFlag(false)
+    } else {
+        setShowDatasFlag(true)
+    }
+}
+const confirmBtn = async () => {
+    const flag = passwordInput.value == store.filesBasesSettingStore.config.fileBasePassword
+    if (flag) {
+        alertDialog.value = false
+        setShowDatasFlag(true)
+        await appInit(currentFilesBases.value)
+        passwordInput.value = ''
+    } else {
+        ElMessage({
+            showClose: true,
+            message: t('settings.basicSettings.password.message.inputError'),
+            type: 'error',
+            duration: 3000,
+        })
+        passwordInput.value = ''
+    }
 }
 
 const openSystem = () => {
