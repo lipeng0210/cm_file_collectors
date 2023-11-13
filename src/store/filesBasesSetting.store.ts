@@ -13,6 +13,8 @@ const defaultConfig = {
     tagMode: 'fixed',
     performerPhoto: true,
     shieldNoPerformerPhoto: true,
+    openFileBasePassword: false,
+    fileBasePassword: '',
     performerShowNum: 12,
     performerPreferred: [],
     pageLimit: 32,
